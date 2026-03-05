@@ -1,0 +1,32 @@
+echo ^<!DOCTYPE html^>
+<html>
+<head>
+<title>FairTrip</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌍 FairTrip</h1>
+<p>Know the real price before you pay</p>
+
+<div class="card">
+<h2>Product Price Checker</h2>
+<input id="product" placeholder="Enter product">
+<button onclick="checkPrice()">Check Price</button>
+<p id="priceResult"></p>
+</div>
+
+<div class="card">
+<h2>Taxi Fare Estimator</h2>
+<input id="distance" placeholder="Distance in KM">
+<button onclick="estimateFare()">Estimate Fare</button>
+<p id="fareResult"></p>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html> > index.html
