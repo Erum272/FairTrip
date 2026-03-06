@@ -1,7 +1,7 @@
 body{
 
 font-family: Arial;
-background: linear-gradient(135deg,#0f172a,#1e293b);
+background:linear-gradient(135deg,#0f172a,#1e293b);
 color:white;
 text-align:center;
 padding:40px;
@@ -52,6 +52,17 @@ border:none;
 
 }
 
+textarea{
+
+width:70%;
+height:100px;
+padding:10px;
+margin:10px;
+border-radius:6px;
+border:none;
+
+}
+
 button{
 
 padding:10px 20px;
@@ -81,5 +92,21 @@ background:#334155;
 padding:10px;
 margin:8px;
 border-radius:6px;
+
+}
+
+.card{
+
+background:#1e293b;
+padding:20px;
+margin:20px;
+border-radius:10px;
+
+}
+
+.card:hover{
+
+transform:scale(1.05);
+transition:0.3s;
 
 }
