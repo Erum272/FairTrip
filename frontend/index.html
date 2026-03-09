@@ -1,86 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tourist Safety Platform</title>
+<title>SafeTour | Smart Travel Safety Platform</title>
 
 <link rel="stylesheet" href="style.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+<!-- ================= NAVBAR ================= -->
 
 <header class="navbar">
+
+<div class="nav-container">
 
 <div class="logo">
 🌍 SafeTour
 </div>
 
-<nav>
+<nav class="nav-links">
+
 <a href="#">Home</a>
+<a href="#">Features</a>
 <a href="#">Price Checker</a>
 <a href="#">Taxi Estimator</a>
 <a href="#">Scam Map</a>
 <a href="#">Trusted Shops</a>
+<a href="#">Community</a>
+
 </nav>
 
+<div class="nav-actions">
+
+<button class="login-btn">Login</button>
+
 <button class="nav-btn">Get Started</button>
+
+</div>
+
+</div>
 
 </header>
 
 
-<!-- HERO SECTION -->
+<!-- ================= HERO SECTION ================= -->
 
 <section class="hero">
+
+<div class="hero-container">
 
 <div class="hero-left">
 
 <h1>
-Smart <span>Travel Safety</span> <br>
-Powered by Data
+
+Smart <span>Travel Safety</span><br>
+Powered By Real Data
+
 </h1>
 
 <p>
-Check prices, detect scams, and travel confidently using our intelligent tourist safety platform.
+
+Detect scams, check prices, estimate taxi fares and travel confidently anywhere in the world using SafeTour.
+
 </p>
 
 <div class="hero-buttons">
-<button class="primary-btn">Explore Platform</button>
-<button class="secondary-btn">View Demo</button>
+
+<button class="primary-btn">
+Explore Platform
+</button>
+
+<button class="secondary-btn">
+Watch Demo
+</button>
+
 </div>
 
-<div class="trust">
-⭐ Trusted by 10k+ travelers worldwide
+<div class="hero-trust">
+
+⭐ Trusted by 10,000+ travelers worldwide
+
 </div>
 
 </div>
 
 <div class="hero-right">
 
-<div class="hero-card">
+<div class="dashboard-card">
 
-<h3>Live Price Check</h3>
-<p>Auto detect overpricing</p>
+<h3>Live Price Checker</h3>
+
+<p>Detect overpricing instantly</p>
+
+<span class="status safe">Fair Price</span>
 
 </div>
 
-<div class="hero-card">
+<div class="dashboard-card">
 
 <h3>Taxi Fare Estimator</h3>
-<p>Know the real fare</p>
+
+<p>Estimated Fare: ₹320</p>
+
+<span class="status info">Distance 5km</span>
 
 </div>
 
-<div class="hero-card">
+<div class="dashboard-card">
 
-<h3>Scam Alerts</h3>
-<p>Community powered alerts</p>
+<h3>Scam Alert</h3>
+
+<p>Tourist scam reported nearby</p>
+
+<span class="status danger">Stay Alert</span>
+
+</div>
 
 </div>
 
@@ -89,36 +134,102 @@ Check prices, detect scams, and travel confidently using our intelligent tourist
 </section>
 
 
-<!-- FEATURES -->
+<!-- ================= FEATURES ================= -->
 
 <section class="features">
 
-<h2>Essential Travel Tools</h2>
+<div class="section-title">
 
-<p class="feature-sub">
-Everything you need to travel smarter
-</p>
+<h2>Powerful Travel Tools</h2>
+
+<p>Everything you need for safe tourism</p>
+
+</div>
 
 <div class="feature-grid">
 
 <div class="feature-card">
+
+<i class="fa-solid fa-coins"></i>
+
 <h3>Price Checker</h3>
-<p>Verify local prices instantly before buying anything.</p>
+
+<p>
+
+Verify local product prices before buying anything and avoid tourist overpricing.
+
+</p>
+
 </div>
 
 <div class="feature-card">
+
+<i class="fa-solid fa-taxi"></i>
+
 <h3>Taxi Estimator</h3>
-<p>Calculate correct taxi fares and avoid overcharging.</p>
+
+<p>
+
+Calculate accurate taxi fares using real distance and city data.
+
+</p>
+
 </div>
 
 <div class="feature-card">
+
+<i class="fa-solid fa-map-location-dot"></i>
+
 <h3>Scam Map</h3>
-<p>See scam hotspots reported by travelers.</p>
+
+<p>
+
+Explore scam hotspots reported by travelers worldwide.
+
+</p>
+
 </div>
 
 <div class="feature-card">
+
+<i class="fa-solid fa-store"></i>
+
 <h3>Trusted Vendors</h3>
-<p>Discover verified tourist friendly businesses.</p>
+
+<p>
+
+Find verified tourist-friendly shops and services.
+
+</p>
+
+</div>
+
+<div class="feature-card">
+
+<i class="fa-solid fa-user-shield"></i>
+
+<h3>Safety Alerts</h3>
+
+<p>
+
+Get real-time alerts about scams and suspicious activity nearby.
+
+</p>
+
+</div>
+
+<div class="feature-card">
+
+<i class="fa-solid fa-globe"></i>
+
+<h3>Global Coverage</h3>
+
+<p>
+
+Available in 50+ tourist cities worldwide.
+
+</p>
+
 </div>
 
 </div>
@@ -126,53 +237,414 @@ Everything you need to travel smarter
 </section>
 
 
-<!-- STATS -->
+<!-- ================= PLATFORM PREVIEW ================= -->
+
+<section class="platform">
+
+<div class="platform-container">
+
+<div class="platform-left">
+
+<h2>
+
+Your Travel Safety Dashboard
+
+</h2>
+
+<p>
+
+All your travel safety tools in one smart platform.
+
+</p>
+
+<ul>
+
+<li>✔ AI Price Detection</li>
+
+<li>✔ Taxi Fare Calculator</li>
+
+<li>✔ Scam Heatmap</li>
+
+<li>✔ Vendor Trust Rating</li>
+
+<li>✔ Traveler Community</li>
+
+</ul>
+
+<button class="primary-btn">
+Open Dashboard
+</button>
+
+</div>
+
+<div class="platform-right">
+
+<div class="mockup-card">Price Checker Dashboard</div>
+
+<div class="mockup-card">Scam Map</div>
+
+<div class="mockup-card">Taxi Calculator</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= STATS ================= -->
 
 <section class="stats">
 
+<div class="stats-grid">
+
 <div class="stat">
+
 <h3>10K+</h3>
-<p>Users</p>
+
+<p>Active Users</p>
+
 </div>
 
 <div class="stat">
+
 <h3>2K+</h3>
-<p>Price Checks</p>
+
+<p>Price Checks Daily</p>
+
 </div>
 
 <div class="stat">
+
 <h3>600+</h3>
+
 <p>Scam Reports</p>
+
 </div>
 
 <div class="stat">
+
 <h3>350+</h3>
-<p>Trusted Shops</p>
+
+<p>Trusted Vendors</p>
+
+</div>
+
 </div>
 
 </section>
 
 
-<!-- CTA -->
+<!-- ================= TESTIMONIALS ================= -->
+
+<section class="testimonials">
+
+<h2>What Travelers Say</h2>
+
+<div class="testimonial-grid">
+
+<div class="testimonial">
+
+<p>
+
+"This app saved me from paying triple price for souvenirs!"
+
+</p>
+
+<h4>- Alex, USA</h4>
+
+</div>
+
+<div class="testimonial">
+
+<p>
+
+"The taxi estimator is extremely accurate."
+
+</p>
+
+<h4>- Maria, Spain</h4>
+
+</div>
+
+<div class="testimonial">
+
+<p>
+
+"The scam map helped me avoid a famous tourist scam."
+
+</p>
+
+<h4>- Kenji, Japan</h4>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= HOW IT WORKS ================= -->
+
+<section class="steps">
+
+<h2>How SafeTour Works</h2>
+
+<div class="step-grid">
+
+<div class="step">
+
+<span>1</span>
+
+<h3>Enter Location</h3>
+
+<p>Choose your travel destination.</p>
+
+</div>
+
+<div class="step">
+
+<span>2</span>
+
+<h3>Check Prices</h3>
+
+<p>Verify prices and taxi fares instantly.</p>
+
+</div>
+
+<div class="step">
+
+<span>3</span>
+
+<h3>Avoid Scams</h3>
+
+<p>View scam alerts reported by travelers.</p>
+
+</div>
+
+<div class="step">
+
+<span>4</span>
+
+<h3>Travel Confidently</h3>
+
+<p>Enjoy safe tourism anywhere.</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= PRICING ================= -->
+
+<section class="pricing">
+
+<h2>Simple Pricing</h2>
+
+<div class="pricing-grid">
+
+<div class="price-card">
+
+<h3>Free</h3>
+
+<h4>$0</h4>
+
+<ul>
+
+<li>Price Checker</li>
+
+<li>Taxi Estimator</li>
+
+<li>Scam Map</li>
+
+</ul>
+
+<button class="secondary-btn">Start Free</button>
+
+</div>
+
+<div class="price-card popular">
+
+<h3>Pro</h3>
+
+<h4>$5 / month</h4>
+
+<ul>
+
+<li>All Free Features</li>
+
+<li>Safety Alerts</li>
+
+<li>Trusted Vendors</li>
+
+</ul>
+
+<button class="primary-btn">Upgrade</button>
+
+</div>
+
+<div class="price-card">
+
+<h3>Business</h3>
+
+<h4>$15</h4>
+
+<ul>
+
+<li>Vendor Verification</li>
+
+<li>Analytics</li>
+
+<li>Business Listing</li>
+
+</ul>
+
+<button class="secondary-btn">Contact</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= FAQ ================= -->
+
+<section class="faq">
+
+<h2>Frequently Asked Questions</h2>
+
+<div class="faq-item">
+
+<h4>Is SafeTour free?</h4>
+
+<p>Yes. Basic tools are free for travelers.</p>
+
+</div>
+
+<div class="faq-item">
+
+<h4>How accurate are taxi estimates?</h4>
+
+<p>They use real city transport data.</p>
+
+</div>
+
+<div class="faq-item">
+
+<h4>Can I report scams?</h4>
+
+<p>Yes. Travelers can submit scam alerts.</p>
+
+</div>
+
+</section>
+
+
+<!-- ================= CTA ================= -->
 
 <section class="cta">
 
-<h2>Travel Smarter Today</h2>
+<h2>Travel Smarter With SafeTour</h2>
 
-<p>Join thousands of tourists using SafeTour</p>
+<p>
 
-<button class="primary-btn">Start Exploring</button>
+Join thousands of travelers protecting themselves from scams.
+
+</p>
+
+<button class="primary-btn">
+Start Exploring
+</button>
 
 </section>
 
 
-<!-- FOOTER -->
+<!-- ================= NEWSLETTER ================= -->
+
+<section class="newsletter">
+
+<h2>Travel Safety Updates</h2>
+
+<p>Get scam alerts and travel tips.</p>
+
+<input type="email" placeholder="Enter your email">
+
+<button class="primary-btn">
+Subscribe
+</button>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
 
 <footer>
 
-<p>© 2026 SafeTour Platform</p>
+<div class="footer-grid">
+
+<div>
+
+<h3>SafeTour</h3>
+
+<p>Smart travel safety platform.</p>
+
+</div>
+
+<div>
+
+<h4>Product</h4>
+
+<ul>
+
+<li>Features</li>
+<li>Pricing</li>
+<li>Updates</li>
+
+</ul>
+
+</div>
+
+<div>
+
+<h4>Company</h4>
+
+<ul>
+
+<li>About</li>
+<li>Careers</li>
+<li>Contact</li>
+
+</ul>
+
+</div>
+
+<div>
+
+<h4>Follow</h4>
+
+<div class="socials">
+
+<i class="fa-brands fa-twitter"></i>
+<i class="fa-brands fa-instagram"></i>
+<i class="fa-brands fa-github"></i>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="copyright">
+
+© 2026 SafeTour Platform
+
+</div>
 
 </footer>
 
 </body>
+
 </html>
