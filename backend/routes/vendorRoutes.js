@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { getVendors, addVendor } = require("../controllers/vendorController");
+const { vendors } = require("../database/database");
 
-router.get("/", getVendors);
-router.post("/", addVendor);
+router.get("/", (req,res)=>{
+res.json(vendors);
+});
 
 module.exports = router;
