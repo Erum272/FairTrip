@@ -1,402 +1,12 @@
 /* =====================================================
-FAIRTRIP SCAM REPORT MODEL
-Tourist Scam Intelligence System
+SCAM ROUTES
+Tourist Safety Intelligence API
 ===================================================== */
 
-const crypto = require("crypto")
+const express = require("express")
+const router = express.Router()
 
-/* =====================================================
-SCAM REPORT CLASS
-===================================================== */
-
-class ScamReport {
-
-constructor(id,title,description,location,city,type,severity){
-
-this.id = id
-this.title = title
-this.description = description
-this.location = location
-this.city = city
-this.type = type
-this.severity = severity
-
-this.createdAt = new Date()
-this.updatedAt = new Date()
-
-this.hash = this.generateHash()
-
-}
-
-/* =========================================
-HASH
-========================================= */
-
-generateHash(){
-
-return crypto
-.createHash("sha256")
-.update(this.title + this.location + this.city)
-.digest("hex")
-
-}
-
-/* =========================================
-UPDATE
-========================================= */
-
-update(data){
-
-if(data.description) this.description = data.description
-if(data.location) this.location = data.location
-if(data.severity) this.severity = data.severity
-
-this.updatedAt = new Date()
-
-}
-
-}
-
-
-
-/* =====================================================
-DATABASE
-===================================================== */
-
-let scamReports = [
-
-new ScamReport(
-1,
-"Fake Taxi Scam",
-"Driver charged 3x normal price",
-"Airport",
-"Delhi",
-"Taxi",
-"High"
-),
-
-new ScamReport(
-2,
-"Tourist Gift Shop Overpricing",
-"Shop charged extremely high prices",
-"Old Market",
-"Bangkok",
-"Shopping",
-"Medium"
-),
-
-new ScamReport(
-3,
-"Fake Tour Guide",
-"Person pretending to be official guide",
-"Museum Area",
-"Paris",
-"Guide",
-"High"
-)
-
-]
-
-
-
-/* =====================================================
-VALIDATION
-===================================================== */
-
-function validateReport(data){
-
-if(!data.title) return "Title required"
-if(!data.description) return "Description required"
-if(!data.city) return "City required"
-
-return null
-
-}
-
-
-
-/* =====================================================
-CRUD
-===================================================== */
-
-function getAllReports(){
-
-return scamReports
-
-}
-
-
-
-function getReportById(id){
-
-return scamReports.find(r => r.id === id)
-
-}
-
-
-
-function addReport(data){
-
-let error = validateReport(data)
-
-if(error) throw new Error(error)
-
-let id = scamReports.length + 1
-
-let report = new ScamReport(
-
-id,
-data.title,
-data.description,
-data.location || "Unknown",
-data.city,
-data.type || "General",
-data.severity || "Low"
-
-)
-
-scamReports.push(report)
-
-logAction("ADD_REPORT",report)
-
-return report
-
-}
-
-
-
-function updateReport(id,data){
-
-let report = getReportById(id)
-
-if(!report) return null
-
-report.update(data)
-
-logAction("UPDATE_REPORT",report)
-
-return report
-
-}
-
-
-
-function deleteReport(id){
-
-let index = scamReports.findIndex(r => r.id === id)
-
-if(index === -1) return false
-
-let removed = scamReports.splice(index,1)
-
-logAction("DELETE_REPORT",removed[0])
-
-return true
-
-}
-
-
-
-/* =====================================================
-FILTERING
-===================================================== */
-
-function filterByCity(city){
-
-return scamReports.filter(r => r.city === city)
-
-}
-
-
-
-function filterByType(type){
-
-return scamReports.filter(r => r.type === type)
-
-}
-
-
-
-function filterHighSeverity(){
-
-return scamReports.filter(r => r.severity === "High")
-
-}
-
-
-
-/* =====================================================
-SEARCH
-===================================================== */
-
-function searchReports(keyword){
-
-return scamReports.filter(r =>
-
-r.title.toLowerCase().includes(keyword.toLowerCase()) ||
-r.description.toLowerCase().includes(keyword.toLowerCase())
-
-)
-
-}
-
-
-
-/* =====================================================
-ANALYTICS
-===================================================== */
-
-function getCityStats(){
-
-let stats = {}
-
-scamReports.forEach(r => {
-
-if(!stats[r.city]) stats[r.city] = 0
-
-stats[r.city]++
-
-})
-
-return stats
-
-}
-
-
-
-function getTypeStats(){
-
-let stats = {}
-
-scamReports.forEach(r => {
-
-if(!stats[r.type]) stats[r.type] = 0
-
-stats[r.type]++
-
-})
-
-return stats
-
-}
-
-
-
-function getTotalReports(){
-
-return scamReports.length
-
-}
-
-
-
-/* =====================================================
-SCAM HOTSPOT DETECTION
-===================================================== */
-
-function detectHotspots(){
-
-let cityStats = getCityStats()
-
-let hotspots = []
-
-for(let city in cityStats){
-
-if(cityStats[city] >= 2){
-
-hotspots.push({
-
-city: city,
-reports: cityStats[city]
-
-})
-
-}
-
-}
-
-return hotspots
-
-}
-
-
-
-/* =====================================================
-AI KEYWORD DETECTION
-===================================================== */
-
-const scamKeywords = [
-
-"overcharge",
-"fake",
-"scam",
-"fraud",
-"tourist trap",
-"extra fee"
-
-]
-
-function detectScamKeywords(text){
-
-let found = []
-
-scamKeywords.forEach(k => {
-
-if(text.toLowerCase().includes(k)){
-
-found.push(k)
-
-}
-
-})
-
-return found
-
-}
-
-
-
-/* =====================================================
-CACHE
-===================================================== */
-
-let cache = {}
-
-function cacheReports(){
-
-cache["reports"] = scamReports
-
-}
-
-
-
-function getCachedReports(){
-
-return cache["reports"] || []
-
-}
-
-
-
-/* =====================================================
-LOGGING
-===================================================== */
-
-function logAction(type,data){
-
-console.log(`[SCAM_MODEL] ${type}`, data.id)
-
-}
-
-
-
-/* =====================================================
-EXPORTS
-===================================================== */
-
-module.exports = {
-
-ScamReport,
+const {
 
 getAllReports,
 getReportById,
@@ -420,4 +30,555 @@ detectScamKeywords,
 cacheReports,
 getCachedReports
 
+} = require("../models/ScamReportModel")
+
+
+
+/* =====================================================
+GET ALL REPORTS
+===================================================== */
+
+router.get("/",(req,res)=>{
+
+try{
+
+let reports = getAllReports()
+
+res.json({
+
+status:"success",
+count:reports.length,
+data:reports
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
 }
+
+})
+
+
+
+/* =====================================================
+GET REPORT BY ID
+===================================================== */
+
+router.get("/:id",(req,res)=>{
+
+try{
+
+let id=parseInt(req.params.id)
+
+let report=getReportById(id)
+
+if(!report){
+
+return res.status(404).json({
+
+status:"fail",
+message:"Report not found"
+
+})
+
+}
+
+res.json({
+
+status:"success",
+data:report
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+ADD SCAM REPORT
+===================================================== */
+
+router.post("/",(req,res)=>{
+
+try{
+
+let report=addReport(req.body)
+
+res.status(201).json({
+
+status:"success",
+message:"Scam report created",
+data:report
+
+})
+
+}catch(err){
+
+res.status(400).json({
+
+status:"fail",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+UPDATE REPORT
+===================================================== */
+
+router.put("/:id",(req,res)=>{
+
+try{
+
+let id=parseInt(req.params.id)
+
+let report=updateReport(id,req.body)
+
+if(!report){
+
+return res.status(404).json({
+
+status:"fail",
+message:"Report not found"
+
+})
+
+}
+
+res.json({
+
+status:"success",
+message:"Report updated",
+data:report
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+DELETE REPORT
+===================================================== */
+
+router.delete("/:id",(req,res)=>{
+
+try{
+
+let id=parseInt(req.params.id)
+
+let success=deleteReport(id)
+
+if(!success){
+
+return res.status(404).json({
+
+status:"fail",
+message:"Report not found"
+
+})
+
+}
+
+res.json({
+
+status:"success",
+message:"Report deleted"
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+SEARCH REPORTS
+===================================================== */
+
+router.get("/search/:keyword",(req,res)=>{
+
+try{
+
+let keyword=req.params.keyword
+
+let results=searchReports(keyword)
+
+res.json({
+
+status:"success",
+results:results.length,
+data:results
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+FILTER BY CITY
+===================================================== */
+
+router.get("/city/:city",(req,res)=>{
+
+try{
+
+let city=req.params.city
+
+let reports=filterByCity(city)
+
+res.json({
+
+status:"success",
+city:city,
+reports:reports.length,
+data:reports
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+FILTER BY TYPE
+===================================================== */
+
+router.get("/type/:type",(req,res)=>{
+
+try{
+
+let type=req.params.type
+
+let reports=filterByType(type)
+
+res.json({
+
+status:"success",
+type:type,
+reports:reports.length,
+data:reports
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+HIGH SEVERITY ALERTS
+===================================================== */
+
+router.get("/alerts/high",(req,res)=>{
+
+try{
+
+let alerts=filterHighSeverity()
+
+res.json({
+
+status:"success",
+alerts:alerts.length,
+data:alerts
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+HOTSPOT DETECTION
+===================================================== */
+
+router.get("/analytics/hotspots",(req,res)=>{
+
+try{
+
+let hotspots=detectHotspots()
+
+res.json({
+
+status:"success",
+hotspots
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+CITY STATS
+===================================================== */
+
+router.get("/analytics/city-stats",(req,res)=>{
+
+try{
+
+let stats=getCityStats()
+
+res.json({
+
+status:"success",
+data:stats
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+TYPE STATS
+===================================================== */
+
+router.get("/analytics/type-stats",(req,res)=>{
+
+try{
+
+let stats=getTypeStats()
+
+res.json({
+
+status:"success",
+data:stats
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+TOTAL REPORT COUNT
+===================================================== */
+
+router.get("/analytics/total",(req,res)=>{
+
+try{
+
+let total=getTotalReports()
+
+res.json({
+
+status:"success",
+totalReports:total
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+AI SCAM KEYWORD DETECTION
+===================================================== */
+
+router.post("/ai/detect",(req,res)=>{
+
+try{
+
+let text=req.body.text
+
+let keywords=detectScamKeywords(text)
+
+res.json({
+
+status:"success",
+detectedKeywords:keywords
+
+})
+
+}catch(err){
+
+res.status(500).json({
+
+status:"error",
+message:err.message
+
+})
+
+}
+
+})
+
+
+
+/* =====================================================
+CACHE REPORTS
+===================================================== */
+
+router.get("/cache/store",(req,res)=>{
+
+cacheReports()
+
+res.json({
+
+status:"success",
+message:"Reports cached successfully"
+
+})
+
+})
+
+
+
+/* =====================================================
+GET CACHE
+===================================================== */
+
+router.get("/cache",(req,res)=>{
+
+let data=getCachedReports()
+
+res.json({
+
+status:"success",
+cachedReports:data.length,
+data:data
+
+})
+
+})
+
+
+
+/* =====================================================
+EXPORT ROUTER
+===================================================== */
+
+module.exports = router
