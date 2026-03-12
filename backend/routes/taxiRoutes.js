@@ -1,228 +1,412 @@
-const express = require("express")
-const router = express.Router()
+/* =====================================================
+FAIRTRIP TAXI MODEL
+Advanced Taxi Fare Intelligence System
+===================================================== */
 
+const crypto = require("crypto")
 
+/* =====================================================
+CLASS
+===================================================== */
 
-/* =====================================
-FAKE TAXI DATABASE
-===================================== */
+class TaxiTrip {
 
-let taxiRates = {
+constructor(id,start,end,distance,fare,time,city){
 
-baseFare: 50,
+this.id=id
+this.start=start
+this.end=end
+this.distance=distance
+this.fare=fare
+this.time=time
+this.city=city
 
-perKm: 12,
+this.createdAt=new Date()
+this.updatedAt=new Date()
 
-nightCharge: 1.5,
+this.hash=this.generateHash()
 
-airportExtra: 100
+}
+
+/* =========================================
+HASH
+========================================= */
+
+generateHash(){
+
+return crypto
+.createHash("sha256")
+.update(this.start + this.end + this.distance)
+.digest("hex")
+
+}
+
+/* =========================================
+UPDATE
+========================================= */
+
+update(data){
+
+if(data.distance) this.distance=data.distance
+if(data.fare) this.fare=data.fare
+if(data.city) this.city=data.city
+
+this.updatedAt=new Date()
+
+}
 
 }
 
 
 
-let taxiTrips = []
+/* =====================================================
+DATABASE
+===================================================== */
+
+let trips=[
+
+new TaxiTrip(1,"Airport","Hotel",12,350,"day","Delhi"),
+new TaxiTrip(2,"Station","Market",5,120,"day","Delhi"),
+new TaxiTrip(3,"Hotel","Museum",3,90,"night","Paris")
+
+]
 
 
 
-/* =====================================
-UTILITIES
-===================================== */
+/* =====================================================
+BASE FARE CONFIG
+===================================================== */
 
-function generateTripId(){
+const pricing={
 
-return Math.floor(Math.random()*100000)
+baseFare:50,
+perKm:12,
+nightMultiplier:1.5,
+surgeMultiplier:2
+
+}
+
+
+
+/* =====================================================
+VALIDATION
+===================================================== */
+
+function validateTrip(data){
+
+if(!data.start) return "Start location required"
+if(!data.end) return "End location required"
+if(!data.distance) return "Distance required"
+
+return null
 
 }
 
 
 
-/* =====================================
-GET TAXI RATES
-===================================== */
+/* =====================================================
+FARE CALCULATION
+===================================================== */
 
-router.get("/rates",(req,res)=>{
+function calculateFare(distance,time){
 
-res.json(taxiRates)
+let fare = pricing.baseFare + (distance * pricing.perKm)
 
-})
+if(time==="night"){
 
-
-
-/* =====================================
-ESTIMATE TAXI FARE
-===================================== */
-
-router.post("/estimate",(req,res)=>{
-
-const { distance , time } = req.body
-
-if(!distance){
-
-return res.status(400).json({
-message:"Distance required"
-})
+fare = fare * pricing.nightMultiplier
 
 }
 
-let fare = taxiRates.baseFare + (distance * taxiRates.perKm)
-
-if(time === "night"){
-
-fare = fare * taxiRates.nightCharge
+return Math.round(fare)
 
 }
 
-res.json({
-
-distance,
-estimatedFare:fare
-
-})
-
-})
 
 
+/* =====================================================
+SURGE PRICING
+===================================================== */
 
-/* =====================================
-AIRPORT TAXI ESTIMATE
-===================================== */
+function calculateSurge(distance){
 
-router.post("/airport",(req,res)=>{
+let fare = pricing.baseFare + (distance * pricing.perKm)
 
-const { distance } = req.body
+fare = fare * pricing.surgeMultiplier
 
-let fare = taxiRates.baseFare + (distance * taxiRates.perKm)
+return Math.round(fare)
 
-fare += taxiRates.airportExtra
-
-res.json({
-
-distance,
-airportFare:fare
-
-})
-
-})
+}
 
 
 
-/* =====================================
-SAVE TRIP
-===================================== */
+/* =====================================================
+CRUD
+===================================================== */
 
-router.post("/trip",(req,res)=>{
+function getAllTrips(){
 
-const { distance , fare } = req.body
+return trips
 
-const trip = {
+}
 
-id:generateTripId(),
-distance,
+
+
+function getTripById(id){
+
+return trips.find(t=>t.id===id)
+
+}
+
+
+
+function addTrip(data){
+
+let error = validateTrip(data)
+
+if(error) throw new Error(error)
+
+let id = trips.length + 1
+
+let fare = calculateFare(data.distance,data.time)
+
+let trip = new TaxiTrip(
+
+id,
+data.start,
+data.end,
+data.distance,
 fare,
-date:new Date()
+data.time || "day",
+data.city || "Unknown"
+
+)
+
+trips.push(trip)
+
+logAction("ADD_TRIP",trip)
+
+return trip
 
 }
 
-taxiTrips.push(trip)
-
-res.json({
-
-message:"Trip saved",
-trip
-
-})
-
-})
 
 
+function updateTrip(id,data){
 
-/* =====================================
-GET ALL TRIPS
-===================================== */
+let trip = getTripById(id)
 
-router.get("/trips",(req,res)=>{
+if(!trip) return null
 
-res.json(taxiTrips)
+trip.update(data)
 
-})
+logAction("UPDATE_TRIP",trip)
 
-
-
-/* =====================================
-DELETE TRIP
-===================================== */
-
-router.delete("/trip/:id",(req,res)=>{
-
-const id = parseInt(req.params.id)
-
-taxiTrips = taxiTrips.filter(t => t.id !== id)
-
-res.json({
-
-message:"Trip removed"
-
-})
-
-})
-
-
-
-/* =====================================
-AVERAGE FARE ANALYTICS
-===================================== */
-
-router.get("/analytics/average",(req,res)=>{
-
-if(taxiTrips.length === 0){
-
-return res.json({
-averageFare:0
-})
+return trip
 
 }
 
-let sum = taxiTrips.reduce((a,b)=>a+b.fare,0)
 
-let avg = sum / taxiTrips.length
 
-res.json({
+function deleteTrip(id){
 
-averageFare:avg
+let index = trips.findIndex(t=>t.id===id)
+
+if(index===-1) return false
+
+let removed = trips.splice(index,1)
+
+logAction("DELETE_TRIP",removed[0])
+
+return true
+
+}
+
+
+
+/* =====================================================
+FILTERS
+===================================================== */
+
+function filterByCity(city){
+
+return trips.filter(t=>t.city===city)
+
+}
+
+
+
+function filterNightTrips(){
+
+return trips.filter(t=>t.time==="night")
+
+}
+
+
+
+/* =====================================================
+SORTING
+===================================================== */
+
+function sortByFareAsc(){
+
+return [...trips].sort((a,b)=>a.fare-b.fare)
+
+}
+
+
+
+function sortByFareDesc(){
+
+return [...trips].sort((a,b)=>b.fare-a.fare)
+
+}
+
+
+
+/* =====================================================
+ANALYTICS
+===================================================== */
+
+function getAverageFare(){
+
+let total=trips.reduce((sum,t)=>sum+t.fare,0)
+
+return total/trips.length
+
+}
+
+
+
+function getLongestTrip(){
+
+return trips.reduce((a,b)=> a.distance>b.distance?a:b )
+
+}
+
+
+
+function getShortestTrip(){
+
+return trips.reduce((a,b)=> a.distance<b.distance?a:b )
+
+}
+
+
+
+function getCityTripStats(){
+
+let stats={}
+
+trips.forEach(t=>{
+
+if(!stats[t.city]) stats[t.city]=0
+
+stats[t.city]++
 
 })
 
-})
+return stats
+
+}
 
 
 
-/* =====================================
-CHEAPEST TRIPS
-===================================== */
+/* =====================================================
+SCAM DETECTION
+===================================================== */
 
-router.get("/analytics/cheap",(req,res)=>{
+function detectTaxiScam(distance,fare){
 
-let sorted = [...taxiTrips].sort((a,b)=>a.fare-b.fare)
+let expected = calculateFare(distance,"day")
 
-res.json(sorted.slice(0,5))
+if(fare > expected*1.7){
 
-})
+return{
+
+status:"SCAM",
+expectedFare:expected
+
+}
+
+}
+
+return{
+
+status:"FAIR",
+expectedFare:expected
+
+}
+
+}
 
 
 
-/* =====================================
-MOST EXPENSIVE TRIPS
-===================================== */
+/* =====================================================
+CACHE
+===================================================== */
 
-router.get("/analytics/expensive",(req,res)=>{
+let cache={}
 
-let sorted = [...taxiTrips].sort((a,b)=>b.fare-a.fare)
+function cacheTrips(){
 
-res.json(sorted.slice(0,5))
+cache["trips"]=trips
 
-})
+}
 
 
 
-module.exports = router
+function getCachedTrips(){
+
+return cache["trips"] || []
+
+}
+
+
+
+/* =====================================================
+LOGGING
+===================================================== */
+
+function logAction(type,data){
+
+console.log(`[TAXI_MODEL] ${type}`,data.id)
+
+}
+
+
+
+/* =====================================================
+EXPORTS
+===================================================== */
+
+module.exports={
+
+TaxiTrip,
+
+getAllTrips,
+getTripById,
+addTrip,
+updateTrip,
+deleteTrip,
+
+calculateFare,
+calculateSurge,
+
+filterByCity,
+filterNightTrips,
+
+sortByFareAsc,
+sortByFareDesc,
+
+getAverageFare,
+getLongestTrip,
+getShortestTrip,
+getCityTripStats,
+
+detectTaxiScam,
+
+cacheTrips,
+getCachedTrips
+
+}
