@@ -1,494 +1,433 @@
-const express = require("express");
-const router = express.Router();
+/* =====================================================
+FAIRTRIP PRICE MODEL
+Advanced Tourist Price Intelligence Model
+===================================================== */
 
-const { prices } = require("../database/database");
+const crypto = require("crypto")
 
+/* =====================================================
+CLASS DEFINITION
+===================================================== */
 
+class Price {
 
-/* ======================================================
-UTILITY FUNCTIONS
-====================================================== */
+constructor(id,item,price,currency,city,category,source="manual"){
 
-function normalize(text){
+this.id=id
+this.item=item
+this.price=price
+this.currency=currency
+this.city=city
+this.category=category
+this.source=source
 
-return text.toLowerCase().trim();
+this.createdAt=new Date()
+this.updatedAt=new Date()
 
-}
-
-function generateId(){
-
-return Math.floor(Math.random()*100000);
-
-}
-
-
-
-/* ======================================================
-VALIDATION MIDDLEWARE
-====================================================== */
-
-function validatePriceInput(req,res,next){
-
-const { item, price } = req.body;
-
-if(!item || !price){
-
-return res.status(400).json({
-
-message:"Item and price required"
-
-});
+this.hash=this.generateHash()
 
 }
 
-next();
+/* =========================================
+HASH GENERATOR
+========================================= */
+
+generateHash(){
+
+return crypto.createHash("sha256")
+.update(this.item + this.city + this.price)
+.digest("hex")
+
+}
+
+/* =========================================
+UPDATE
+========================================= */
+
+update(data){
+
+if(data.price) this.price=data.price
+if(data.city) this.city=data.city
+if(data.category) this.category=data.category
+if(data.currency) this.currency=data.currency
+
+this.updatedAt=new Date()
+
+}
 
 }
 
 
 
-/* ======================================================
-GET ALL PRICES
-====================================================== */
+/* =====================================================
+IN-MEMORY DATABASE
+===================================================== */
 
-router.get("/", (req,res)=>{
+let priceDatabase=[
 
-res.json(prices);
+new Price(1,"Water Bottle",20,"INR","Delhi","Food"),
+new Price(2,"Coffee",150,"INR","Delhi","Food"),
+new Price(3,"Taxi Airport",600,"INR","Delhi","Transport"),
+new Price(4,"Street Snack",50,"INR","Mumbai","Food"),
+new Price(5,"Museum Ticket",500,"INR","Delhi","Entertainment")
 
-});
-
-
-
-/* ======================================================
-SEARCH PRICE
-====================================================== */
-
-router.get("/search",(req,res)=>{
-
-const query = normalize(req.query.q || "");
-
-const results = prices.filter(p =>
-normalize(p.item).includes(query)
-);
-
-res.json(results);
-
-});
+]
 
 
 
-/* ======================================================
-GET PRICE BY ID
-====================================================== */
+/* =====================================================
+VALIDATION
+===================================================== */
 
-router.get("/:id",(req,res)=>{
+function validatePrice(data){
 
-const id = parseInt(req.params.id);
+if(!data.item) return "Item required"
+if(!data.price) return "Price required"
+if(!data.city) return "City required"
+if(!data.currency) return "Currency required"
 
-const item = prices.find(p => p.id === id);
-
-if(!item){
-
-return res.status(404).json({
-
-message:"Price not found"
-
-});
+return null
 
 }
 
-res.json(item);
-
-});
 
 
+/* =====================================================
+CRUD METHODS
+===================================================== */
 
-/* ======================================================
-PRICE CHECKER
-====================================================== */
+function getAllPrices(){
 
-router.post("/check",validatePriceInput,(req,res)=>{
-
-const { item, price } = req.body;
-
-const found = prices.find(p =>
-normalize(p.item) === normalize(item)
-);
-
-if(!found){
-
-return res.json({
-
-status:"unknown",
-message:"No reference price available"
-
-});
+return priceDatabase
 
 }
 
-if(price > found.price){
 
-return res.json({
 
-status:"overpriced",
-actual:found.price
+function getPriceById(id){
 
-});
+return priceDatabase.find(p=>p.id===id)
 
 }
 
-if(price < found.price){
-
-return res.json({
-
-status:"cheap",
-actual:found.price
-
-});
-
-}
-
-return res.json({
-
-status:"fair",
-actual:found.price
-
-});
-
-});
 
 
+function searchPrice(item){
 
-/* ======================================================
-COMPARE MULTIPLE PRICES
-====================================================== */
+return priceDatabase.filter(p=>
 
-router.post("/compare",(req,res)=>{
+p.item.toLowerCase().includes(item.toLowerCase())
 
-const { item, vendorPrices } = req.body;
-
-if(!vendorPrices || vendorPrices.length === 0){
-
-return res.status(400).json({
-
-message:"Vendor prices required"
-
-});
+)
 
 }
 
-const average =
-vendorPrices.reduce((a,b)=>a+b,0)
-/ vendorPrices.length;
-
-res.json({
-
-item,
-averagePrice:average,
-vendorPrices
-
-});
-
-});
 
 
+function addPrice(data){
 
-/* ======================================================
-ADD PRICE
-====================================================== */
+let error=validatePrice(data)
 
-router.post("/add",validatePriceInput,(req,res)=>{
+if(error) throw new Error(error)
 
-const { item, price, category, city } = req.body;
+let id=priceDatabase.length+1
 
-const newItem = {
+let price=new Price(
 
-id:generateId(),
-item,
-price,
-category:category || "general",
-city:city || "global"
+id,
+data.item,
+data.price,
+data.currency,
+data.city,
+data.category || "General"
 
-};
+)
 
-prices.push(newItem);
+priceDatabase.push(price)
 
-res.json({
+logAction("ADD_PRICE",price)
 
-message:"Price added successfully",
-data:newItem
-
-});
-
-});
-
-
-
-/* ======================================================
-UPDATE PRICE
-====================================================== */
-
-router.put("/:id",(req,res)=>{
-
-const id = parseInt(req.params.id);
-
-const { price } = req.body;
-
-const item = prices.find(p => p.id === id);
-
-if(!item){
-
-return res.status(404).json({
-
-message:"Price item not found"
-
-});
+return price
 
 }
 
-item.price = price;
-
-res.json({
-
-message:"Price updated",
-item
-
-});
-
-});
 
 
+function updatePrice(id,data){
 
-/* ======================================================
-DELETE PRICE
-====================================================== */
+let price=getPriceById(id)
 
-router.delete("/:id",(req,res)=>{
+if(!price) return null
 
-const id = parseInt(req.params.id);
+price.update(data)
 
-const index = prices.findIndex(p => p.id === id);
+logAction("UPDATE_PRICE",price)
 
-if(index === -1){
-
-return res.status(404).json({
-
-message:"Item not found"
-
-});
+return price
 
 }
 
-prices.splice(index,1);
-
-res.json({
-
-message:"Price removed"
-
-});
-
-});
 
 
+function deletePrice(id){
 
-/* ======================================================
-FILTER BY CATEGORY
-====================================================== */
+let index=priceDatabase.findIndex(p=>p.id===id)
 
-router.get("/category/:category",(req,res)=>{
+if(index===-1) return false
 
-const category = normalize(req.params.category);
+let removed=priceDatabase.splice(index,1)
 
-const result = prices.filter(p =>
-normalize(p.category) === category
-);
+logAction("DELETE_PRICE",removed[0])
 
-res.json(result);
-
-});
-
-
-
-/* ======================================================
-FILTER BY CITY
-====================================================== */
-
-router.get("/city/:city",(req,res)=>{
-
-const city = normalize(req.params.city);
-
-const result = prices.filter(p =>
-normalize(p.city) === city
-);
-
-res.json(result);
-
-});
-
-
-
-/* ======================================================
-TOP EXPENSIVE ITEMS
-====================================================== */
-
-router.get("/analytics/expensive",(req,res)=>{
-
-const sorted = [...prices].sort(
-(a,b)=>b.price-a.price
-);
-
-res.json(sorted.slice(0,5));
-
-});
-
-
-
-/* ======================================================
-CHEAPEST ITEMS
-====================================================== */
-
-router.get("/analytics/cheap",(req,res)=>{
-
-const sorted = [...prices].sort(
-(a,b)=>a.price-b.price
-);
-
-res.json(sorted.slice(0,5));
-
-});
-
-
-
-/* ======================================================
-PRICE STATS
-====================================================== */
-
-router.get("/analytics/stats",(req,res)=>{
-
-const total = prices.length;
-
-const sum = prices.reduce(
-(a,b)=>a + b.price,0
-);
-
-const avg = sum / total;
-
-res.json({
-
-totalItems:total,
-averagePrice:avg
-
-});
-
-});
-
-
-
-/* ======================================================
-PRICE ALERT SYSTEM
-====================================================== */
-
-router.post("/alert",(req,res)=>{
-
-const { item, threshold } = req.body;
-
-const found = prices.find(p =>
-normalize(p.item) === normalize(item)
-);
-
-if(!found){
-
-return res.json({
-
-message:"Item not found"
-
-});
+return true
 
 }
 
-if(found.price > threshold){
-
-return res.json({
-
-alert:true,
-message:"Price exceeded threshold"
-
-});
-
-}
-
-res.json({
-
-alert:false
-
-});
-
-});
 
 
+/* =====================================================
+BULK OPERATIONS
+===================================================== */
 
-/* ======================================================
-BULK PRICE UPLOAD
-====================================================== */
+function bulkInsert(list){
 
-router.post("/bulk",(req,res)=>{
+list.forEach(item=>{
 
-const { items } = req.body;
+addPrice(item)
 
-if(!Array.isArray(items)){
+})
 
-return res.status(400).json({
-
-message:"Array required"
-
-});
+return true
 
 }
 
-items.forEach(i => {
 
-prices.push({
 
-id:generateId(),
-item:i.item,
-price:i.price,
-category:i.category || "general"
+function bulkDelete(ids){
 
-});
+ids.forEach(id=>{
 
-});
+deletePrice(id)
 
-res.json({
+})
 
-message:"Bulk upload complete",
-count:items.length
+return true
 
-});
-
-});
+}
 
 
 
-/* ======================================================
-RESET DATABASE (ADMIN)
-====================================================== */
+/* =====================================================
+FILTERING
+===================================================== */
 
-router.post("/admin/reset",(req,res)=>{
+function filterByCity(city){
 
-prices.length = 0;
+return priceDatabase.filter(p=>p.city===city)
 
-res.json({
-
-message:"Price database cleared"
-
-});
-
-});
+}
 
 
 
-/* ======================================================
-EXPORT ROUTER
-====================================================== */
+function filterByCategory(category){
 
-module.exports = router;
+return priceDatabase.filter(p=>p.category===category)
+
+}
+
+
+
+/* =====================================================
+SORTING
+===================================================== */
+
+function sortByPriceAsc(){
+
+return [...priceDatabase].sort((a,b)=>a.price-b.price)
+
+}
+
+
+
+function sortByPriceDesc(){
+
+return [...priceDatabase].sort((a,b)=>b.price-a.price)
+
+}
+
+
+
+/* =====================================================
+ANALYTICS
+===================================================== */
+
+function getAveragePrice(){
+
+let total=priceDatabase.reduce((sum,p)=>sum+p.price,0)
+
+return total/priceDatabase.length
+
+}
+
+
+
+function getMaxPrice(){
+
+return Math.max(...priceDatabase.map(p=>p.price))
+
+}
+
+
+
+function getMinPrice(){
+
+return Math.min(...priceDatabase.map(p=>p.price))
+
+}
+
+
+
+function getCategoryStats(){
+
+let stats={}
+
+priceDatabase.forEach(p=>{
+
+if(!stats[p.category]) stats[p.category]=0
+
+stats[p.category]++
+
+})
+
+return stats
+
+}
+
+
+
+function getCityStats(){
+
+let stats={}
+
+priceDatabase.forEach(p=>{
+
+if(!stats[p.city]) stats[p.city]=0
+
+stats[p.city]++
+
+})
+
+return stats
+
+}
+
+
+
+/* =====================================================
+SCAM DETECTION
+===================================================== */
+
+function detectOverpriced(item,price){
+
+let matches=searchPrice(item)
+
+if(matches.length===0) return null
+
+let avg=matches.reduce((s,p)=>s+p.price,0)/matches.length
+
+if(price > avg*1.5){
+
+return{
+
+status:"OVERPRICED",
+
+average:avg
+
+}
+
+}
+
+return{
+
+status:"FAIR",
+
+average:avg
+
+}
+
+}
+
+
+
+/* =====================================================
+CACHE SYSTEM
+===================================================== */
+
+let cache={}
+
+function cachePrices(){
+
+cache["prices"]=priceDatabase
+
+}
+
+
+
+function getCachedPrices(){
+
+return cache["prices"] || []
+
+}
+
+
+
+/* =====================================================
+LOGGING
+===================================================== */
+
+function logAction(type,data){
+
+console.log(`[PRICE_MODEL] ${type}`,data.id)
+
+}
+
+
+
+/* =====================================================
+EXPORTS
+===================================================== */
+
+module.exports={
+
+Price,
+
+getAllPrices,
+getPriceById,
+searchPrice,
+
+addPrice,
+updatePrice,
+deletePrice,
+
+bulkInsert,
+bulkDelete,
+
+filterByCity,
+filterByCategory,
+
+sortByPriceAsc,
+sortByPriceDesc,
+
+getAveragePrice,
+getMaxPrice,
+getMinPrice,
+
+getCategoryStats,
+getCityStats,
+
+detectOverpriced,
+
+cachePrices,
+getCachedPrices
+
+}
