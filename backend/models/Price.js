@@ -1,31 +1,69 @@
-const vendors=[]
+const db=require("../config/db")
 
-function getVendors(){
-return vendors
+function getPrices(){
+
+return db.find("prices")
+
 }
 
-function addVendor(data){
+function addPrice(data){
 
-const vendor={
-id:Date.now(),
-name:data.name,
+return db.insert("prices",{
+
+item:data.item,
+price:data.price,
 city:data.city,
 category:data.category,
-rating:4,
 createdAt:new Date()
+
+})
+
 }
 
-vendors.push(vendor)
+function getPrice(id){
 
-return vendor
+return db.findById("prices",id)
+
 }
 
-function getVendorById(id){
-return vendors.find(v=>v.id==id)
+function updatePrice(id,data){
+
+return db.update("prices",id,data)
+
+}
+
+function deletePrice(id){
+
+return db.remove("prices",id)
+
+}
+
+function searchPrice(keyword){
+
+let prices=getPrices()
+
+return prices.filter(p=>
+
+p.item.toLowerCase().includes(keyword.toLowerCase())
+
+)
+
+}
+
+function filterByCity(city){
+
+return getPrices().filter(p=>p.city===city)
+
 }
 
 module.exports={
-getVendors,
-addVendor,
-getVendorById
+
+getPrices,
+addPrice,
+getPrice,
+updatePrice,
+deletePrice,
+searchPrice,
+filterByCity
+
 }
