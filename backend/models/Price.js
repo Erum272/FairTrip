@@ -1,22 +1,31 @@
-const mongoose = require("mongoose");
+const vendors=[]
 
-const priceSchema = new mongoose.Schema({
-productName: {
-type: String,
-required: true
-},
-averagePrice: {
-type: Number,
-required: true
-},
-currency: {
-type: String,
-default: "INR"
-},
-location: {
-type: String,
-default: "India"
+function getVendors(){
+return vendors
 }
-});
 
-module.exports = mongoose.model("Price", priceSchema);
+function addVendor(data){
+
+const vendor={
+id:Date.now(),
+name:data.name,
+city:data.city,
+category:data.category,
+rating:4,
+createdAt:new Date()
+}
+
+vendors.push(vendor)
+
+return vendor
+}
+
+function getVendorById(id){
+return vendors.find(v=>v.id==id)
+}
+
+module.exports={
+getVendors,
+addVendor,
+getVendorById
+}

@@ -1,63 +1,59 @@
-const Price = require("../models/Price");
+const prices = []
 
-/* Get all product prices */
-exports.getPrices = async (req, res) => {
-try {
+function getPrices(){
+return prices
+}
 
-```
-const prices = await Price.find();
+function addPrice(data){
 
-res.status(200).json({
-  success: true,
-  data: prices
-});
-```
+const price={
+id:Date.now(),
+item:data.item,
+price:data.price,
+city:data.city,
+category:data.category,
+createdAt:new Date()
+}
 
-} catch (error) {
+prices.push(price)
 
-```
-res.status(500).json({
-  success: false,
-  message: "Error fetching prices",
-  error: error.message
-});
-```
+return price
+}
+
+function getPriceById(id){
+
+return prices.find(p=>p.id==id)
 
 }
-};
 
-/* Add new product price */
-exports.addPrice = async (req, res) => {
-try {
+function updatePrice(id,data){
 
-```
-const { productName, averagePrice, currency, location } = req.body;
+const price=getPriceById(id)
 
-const newPrice = new Price({
-  productName,
-  averagePrice,
-  currency,
-  location
-});
+if(!price) return null
 
-const savedPrice = await newPrice.save();
+price.price=data.price || price.price
+price.city=data.city || price.city
+price.category=data.category || price.category
 
-res.status(201).json({
-  success: true,
-  message: "Price added successfully",
-  data: savedPrice
-});
-```
-
-} catch (error) {
-
-```
-res.status(500).json({
-  success: false,
-  message: "Error adding price",
-  error: error.message
-});
-```
-
+return price
 }
-};
+
+function deletePrice(id){
+
+const index=prices.findIndex(p=>p.id==id)
+
+if(index===-1) return false
+
+prices.splice(index,1)
+
+return true
+}
+
+module.exports={
+getPrices,
+addPrice,
+getPriceById,
+updatePrice,
+deletePrice
+}
